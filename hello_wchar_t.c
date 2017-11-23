@@ -1,18 +1,18 @@
 /*_________
- /         \ hello.c v3.2.4 [Nov 5, 2017] zlib licence
- |tiny file| Hello World file created [November 9, 2014]
+ /         \ hello_wchar_t.c v3.2.4 [Nov 5, 2017] zlib licence
+ |tiny file| Hello WCHAR_T file created [November 9, 2014]
  | dialogs | Copyright (c) 2014 - 2017 Guillaume Vareille http://ysengrin.com
  \____  ___/ http://tinyfiledialogs.sourceforge.net
       \|
 	         git://git.code.sf.net/p/tinyfiledialogs/code
          ____________________________________________
-		|                                            |
-		|   email: tinyfiledialogs at ysengrin.com   |
-		|____________________________________________|
-     _________________________________________________________________
-    |                                                                 |
-    | this file is for windows and unix (osx linux, bsd, solaris ...) |
-    |_________________________________________________________________|
+	    |                                            |
+	    |   email: tinyfiledialogs at ysengrin.com   |
+	    |____________________________________________|
+                _______________________________
+               |                               |
+               | this file is for windows only |
+               |_______________________________|
 	  
 Please 1) Let me know If you are using it on exotic hardware / OS / compiler
        2) If yo have a sourceforge account, leave a 3-word review on Sourceforge.
@@ -84,120 +84,105 @@ misrepresented as being the original software.
 */
 
 
-/*
-- Here is the Hello World:
-    if a console is missing, it will use graphic dialogs
-    if a graphical display is absent, it will use console dialogs
-		(on windows the input box may take some time to open the first time)
-*/
-
-
+#include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 #include "tinyfiledialogs.h"
-int main( int argc , char * argv[] )
+int main(void)
 {
 	int lIntValue;
-	char const * lTmp;
-	char const * lTheSaveFileName;
-	char const * lTheOpenFileName;
-	char const * lTheSelectFolderName;
-	char const * lTheHexColor;
-	char const * lWillBeGraphicMode;
+	wchar_t const * lTmp;
+	wchar_t const * lTheSaveFileName;
+	wchar_t const * lTheOpenFileName;
+	wchar_t const * lTheSelectFolderName;
+	wchar_t const * lTheHexColor;
+	wchar_t const * lWillBeGraphicMode;
 	unsigned char lRgbColor[3];
 	FILE * lIn;
-	char lBuffer[1024];
-	char lThePassword[1024];
-	char const * lFilterPatterns[2] = { "*.txt", "*.text" };
+	wchar_t lWcharBuff[1024];
+	wchar_t lBuffer[1024];
+	wchar_t lThePassword[1024];
+	wchar_t const * lFilterPatterns[2] = { L"*.txt", L"*.text" };
 
-	tinyfd_verbose = argc - 1;
-
-#ifdef _WIN32
-	tinyfd_winUtf8 = 0; /* on windows, you decide if char holds 0(default): MBCS or 1: UTF-8 */
-#endif
-
-	lWillBeGraphicMode = tinyfd_inputBox("tinyfd_query", NULL, NULL);
+	lWillBeGraphicMode = tinyfd_inputBoxW(L"tinyfd_query", NULL, NULL);
 
 #ifdef _MSC_VER
-#pragma warning(disable:4996) /* silences warning about strcpy strcat fopen*/
+#pragma warning(disable:4996) /* silences warning about strcpy strcat fopen wcscpy*/
 #endif
 
-	strcpy(lBuffer, "v");
-	strcat(lBuffer, tinyfd_version);
+	wcscpy(lBuffer, L"v");
+	mbstowcs(lWcharBuff, tinyfd_version, strlen(tinyfd_version) + 1);
+	wcscat(lBuffer, lWcharBuff);
 	if (lWillBeGraphicMode)
 	{
-		strcat(lBuffer, "\ngraphic mode: ");
+		wcscat(lBuffer, L"\ngraphic mode: ");
 	}
 	else
 	{
-		strcat(lBuffer, "\nconsole mode: ");
+		wcscat(lBuffer, L"\nconsole mode: ");
 	}
 
-	strcat(lBuffer, tinyfd_response);
-	strcpy(lThePassword, "tinyfiledialogs");
-	tinyfd_messageBox(lThePassword, lBuffer, "ok", "info", 0);
+	mbstowcs(lWcharBuff, tinyfd_response, strlen(tinyfd_response)+1);
+	wcscat(lBuffer, lWcharBuff);
+	wcscpy(lThePassword, L"tinyfiledialogs");
+	tinyfd_messageBoxW(lThePassword, lBuffer, L"ok", L"info", 0);
 
-	tinyfd_notifyPopup("the title", "the message\n\tfrom outer-space", "info");
+	tinyfd_notifyPopupW(L"le titre", L"le message\n\tde la mort qui tue", L"info");
 
 	/*tinyfd_forceConsole = 1;*/
 	if ( lWillBeGraphicMode && ! tinyfd_forceConsole )
 	{
-		lIntValue = tinyfd_messageBox("Hello World",
-			"graphic dialogs [yes] / console mode [no]?",
-			"yesno", "question", 1);
-		tinyfd_forceConsole = ! lIntValue ;
-		
-		/*lIntValue = tinyfd_messageBox("Hello World",
-			"graphic dialogs [yes] / console mode [no]?",
-			"yesnocancel", "question", 1);
-		tinyfd_forceConsole = (lIntValue == 2);*/
+		lIntValue = tinyfd_messageBoxW(L"Hello World",
+			L"Console mode is not implemented for wchar_T UTF-16",
+			L"ok", L"info", 1);
+		tinyfd_forceConsole = ! lIntValue ;		
 	}
 
-	lTmp = tinyfd_inputBox(
-		"a password box", "your password will be revealed", NULL);
+	lTmp = tinyfd_inputBoxW(
+		L"a password box", L"your password will be revealed", NULL);
 
 	if (!lTmp) return 1 ;
 
 	/* copy lTmp because saveDialog would overwrites
 	inputBox static buffer in basicinput mode */
 
-	strcpy(lThePassword, lTmp);
+	wcscpy(lThePassword, lTmp);
 
-	lTheSaveFileName = tinyfd_saveFileDialog(
-		"let us save this password",
-		"passwordFile.txt",
+	lTheSaveFileName = tinyfd_saveFileDialogW(
+		L"let us save this password",
+		L"passwordFile.txt",
 		2,
 		lFilterPatterns,
 		NULL);
 
 	if (! lTheSaveFileName)
 	{
-		tinyfd_messageBox(
-			"Error",
-			"Save file name is NULL",
-			"ok",
-			"error",
+		tinyfd_messageBoxW(
+			L"Error",
+			L"Save file name is NULL",
+			L"ok",
+			L"error",
 			1);
 		return 1 ;
 	}
 
-	lIn = fopen(lTheSaveFileName, "w");
+	lIn = _wfopen(lTheSaveFileName, L"wt, ccs=UNICODE");
 	if (!lIn)
 	{
-		tinyfd_messageBox(
-			"Error",
-			"Can not open this file in write mode",
-			"ok",
-			"error",
+		tinyfd_messageBoxW(
+			L"Error",
+			L"Can not open this file in write mode",
+			L"ok",
+			L"error",
 			1);
 		return 1 ;
 	}
-	fputs(lThePassword, lIn);
+	fputws(lThePassword, lIn);
 	fclose(lIn);
 
-	lTheOpenFileName = tinyfd_openFileDialog(
-		"let us read the password back",
-		"",
+	lTheOpenFileName = tinyfd_openFileDialogW(
+		L"let us read the password back",
+		L"",
 		2,
 		lFilterPatterns,
 		NULL,
@@ -205,16 +190,16 @@ int main( int argc , char * argv[] )
 
 	if (! lTheOpenFileName)
 	{
-		tinyfd_messageBox(
-			"Error",
-			"Open file name is NULL",
-			"ok",
-			"error",
+		tinyfd_messageBoxW(
+			L"Error",
+			L"Open file name is NULL",
+			L"ok",
+			L"error",
 			1);
 		return 1 ;
 	}
 
-	lIn = fopen(lTheOpenFileName, "r");
+	lIn = _wfopen(lTheOpenFileName, L"rt, ccs=UNICODE");
 
 #ifdef _MSC_VER
 #pragma warning(default:4996)
@@ -222,57 +207,57 @@ int main( int argc , char * argv[] )
 
 	if (!lIn)
 	{
-		tinyfd_messageBox(
-			"Error",
-			"Can not open this file in read mode",
-			"ok",
-			"error",
+		tinyfd_messageBoxW(
+			L"Error",
+			L"Can not open this file in read mode",
+			L"ok",
+			L"error",
 			1);
 		return(1);
 	}
 	lBuffer[0] = '\0';
-	fgets(lBuffer, sizeof(lBuffer), lIn);
+	fgetws(lBuffer, sizeof(lBuffer), lIn);
 	fclose(lIn);
 
-	tinyfd_messageBox("your password is",
-			lBuffer, "ok", "info", 1);
+	tinyfd_messageBoxW(L"your password is",
+			lBuffer, L"ok", L"info", 1);
 
-	lTheSelectFolderName = tinyfd_selectFolderDialog(
-		"let us just select a directory", NULL);
+	lTheSelectFolderName = tinyfd_selectFolderDialogW(
+		L"let us just select a directory", NULL);
 
 	if (!lTheSelectFolderName)
 	{
-		tinyfd_messageBox(
-			"Error",
-			"Select folder name is NULL",
-			"ok",
-			"error",
+		tinyfd_messageBoxW(
+			L"Error",
+			L"Select folder name is NULL",
+			L"ok",
+			L"error",
 			1);
 		return 1;
 	}
 
-	tinyfd_messageBox("The selected folder is",
-		lTheSelectFolderName, "ok", "info", 1);
+	tinyfd_messageBoxW(L"The selected folder is",
+		lTheSelectFolderName, L"ok", L"info", 1);
 
-	lTheHexColor = tinyfd_colorChooser(
-		"choose a nice color",
-		"#FF0077",
+	lTheHexColor = tinyfd_colorChooserW(
+		L"choose a nice color",
+		L"#FF0077",
 		lRgbColor,
 		lRgbColor);
 
 	if (!lTheHexColor)
 	{
-		tinyfd_messageBox(
-			"Error",
-			"hexcolor is NULL",
-			"ok",
-			"error",
+		tinyfd_messageBoxW(
+			L"Error",
+			L"hexcolor is NULL",
+			L"ok",
+			L"error",
 			1);
 		return 1;
 	}
 
-	tinyfd_messageBox("The selected hexcolor is",
-		lTheHexColor, "ok", "info", 1);
+	tinyfd_messageBoxW(L"The selected hexcolor is",
+		lTheHexColor, L"ok", L"info", 1);
 
 	tinyfd_beep();
 
@@ -280,15 +265,8 @@ int main( int argc , char * argv[] )
 }
 
 /*
-OSX :
-$ gcc -o hello.app hello.c tinyfiledialogs.c
-
-UNIX :
-$ gcc -o hello hello.c tinyfiledialogs.c
-( or clang tcc cc CC )
-
 MinGW (needs gcc >= v4.9 otherwise some headers are incomplete):
-> gcc -o hello.exe hello.c tinyfiledialogs.c -LC:/mingw/lib -lcomdlg32 -lole32
+> gcc -o hello.exe hello_wchar_t.c tinyfiledialogs.c -LC:/mingw/lib -lcomdlg32 -lole32
 (unfortunately some headers are missing with tcc)
 
 VisualStudio :
