@@ -1,40 +1,29 @@
-tiny file dialogs ( cross-platform C C++ ) v3.2.4 [Nov 5, 2017] zlib licence
+tiny file dialogs ( cross-platform C C++ ) v3.4.3 [Dec 8, 2019] zlib licence
  _________
-/         \   Native Popup InputBox PasswordBox MessageBox ColorPicker
+/         \   Beep Popup InputBox PasswordBox MessageBox ColorPicker
 |tiny file|   OpenFileDialog SaveFileDialog SelectFolderDialog
 | dialogs |   ASCII UTF-8 (and also MBCS UTF-16 for windows)
 \____  ___/   Native dialog library for WINDOWS MAC OSX GTK+ QT CONSOLE
-     \|
+     \|       SSH support via automatic switch to console mode or X11 forwarding
 
-SSH supported via automatic switch to console mode or X11 forwarding
+C89 & C++98 compliant: tested with C & C++ compilers
+VisualStudio MinGW GCC Clang TinyCC OpenWatcom-v2 BorlandC SunCC ZapCC
+on Windows Mac Linux Bsd Solaris Minix Raspbian
+using Gnome Kde Mate Enlightenment Cinnamon Budgie Unity Lxde Lxqt Xfce
+      WindowMaker IceWm Cde Jds OpenBox Awesome Jwm Xdm Cwm
 
-C89 & C++98 compliant: tested with C & C++ compilers on 
-    VisualStudio MinGW OSX LINUX FREEBSD OPENBSD ILLUMOS SOLARIS MINIX RASPBIAN
-using
-    Gnome Kde Mate Cinnamon Unity Lxde Lxqt Xfce Enlightenment
-    WindowMaker IceWm Cde Jds OpenBox Awesome Jwm Xdm
+Bindings for LUA and C# dll, Haskell, Fortran. Included in LWJGL(java), Rust, Allegrobasic
 
-bindings for LUA and C# dll, Haskell; included in LWJGL(java), Rust, Allegrobasic
-
-                  http://tinyfiledialogs.sourceforge.net
-               git://git.code.sf.net/p/tinyfiledialogs/code
-                   _____________________________________
-                  |                                     |
-                  | version 3 has the same good old API |
-                  |       dialogs now stay on top       |
-                  |       better UNICODE handling       |
-                  | new dialog: TRAY NOTIFICATION POPUP |
-                  |     2nd new dialog: SYSTEM BEEP     |
-                  |_____________________________________|
-     ___________________________________________________________________
-    |                                                                   |
-    | the windows only wchar_t UTF-16 prototypes are in the header file |
-    |              NOW ALSO FOR THE INPUT / PASSWORD BOX                |
-    |___________________________________________________________________|
+                   http://tinyfiledialogs.sourceforge.net
+         git clone http://git.code.sf.net/p/tinyfiledialogs/code tinyfd
   _________________________________________________________________________
  |                                                                         |
  | CONTACT me directly via the email address at the top of the header file |
  |_________________________________________________________________________|
+     ___________________________________________________________________
+    |                                                                   |
+    | the windows only wchar_t UTF-16 prototypes are in the header file |
+    |___________________________________________________________________|
 
 void tinyfd_beep() ;
 
@@ -96,7 +85,7 @@ char const * tinyfd_colorChooser (
 - The code is pure C, perfectly compatible with C++.
 - the windows only wchar_t (utf-16) prototypes are in the header file
 - windows is fully supported from XP to 10 (maybe even older versions)
-- C# & LUA via dll, see files in the folder EXTRAS 
+- C# & LUA via dll, see files in the folder EXTRAS
 - OSX supported from 10.4 to latest (maybe even older versions)
 - Avoid using " and ' in titles and messages.
 - There's one file filter only, it may contain several patterns.
@@ -108,9 +97,10 @@ char const * tinyfd_colorChooser (
   (on windows the no linking claim is a lie)
   This linking is not compulsary for console mode (see header file).
 - On unix: it tries command line calls, so no such need (NO LINKING).
-- On unix you need applescript, kdialog, zenity, matedialog, qarma,
-  python (2 or 3)/tkinter/python-dbus (optional),
-  Xdialog or dialog (opens terminal if running without console).
+- On unix you need one of the following:
+  applescript, kdialog, zenity, matedialog, shellementary, qarma,
+  python (2 or 3)/tkinter/python-dbus (optional), Xdialog
+  or dialog (opens terminal if running without console) or xterm.
 - One of those is already included on most (if not all) desktops.
 - In the absence of those it will use gdialog, gxmessage or whiptail
   with a textinputbox.
@@ -134,8 +124,8 @@ char const * tinyfd_colorChooser (
   It can be found at the bottom of the following page:
   http://andrear.altervista.org/home/cdialog.php
 - If dialog is missing, it will switch to basic console input.
-- You can query the type of dialog that will be use.
-- MinGW needs gcc >= v4.9 otherwise some headers are incomplete.
+- You can query the type of dialog that will be use (pass "tinyfd_query" as aTitle)
+
 
 - Here is the Hello World:
             if a console is missing, it will use graphic dialogs
@@ -157,7 +147,7 @@ int main()
 	unsigned char lRgbColor[3];
 	FILE * lIn;
 	char lBuffer[1024];
-	char lThePassword[1024];
+	char lString[1024];
 	char const * lFilterPatterns[2] = { "*.txt", "*.text" };
 
 	lWillBeGraphicMode = tinyfd_inputBox("tinyfd_query", NULL, NULL);
@@ -172,10 +162,10 @@ int main()
 	}
 
 	strcat(lBuffer, tinyfd_response);
-	strcpy(lThePassword, "v");
-	strcat(lThePassword, tinyfd_version);
-	strcat(lThePassword, " tinyfiledialogs");
-	tinyfd_messageBox(lThePassword, lBuffer, "ok", "info", 0);
+	strcpy(lString, "v");
+	strcat(lString, tinyfd_version);
+	strcat(lString, " tinyfiledialogs");
+	tinyfd_messageBox(lString, lBuffer, "ok", "info", 0);
 
 	tinyfd_notifyPopup("the title", "the message\n\tfrom outer-space", "info");
 
@@ -194,7 +184,7 @@ int main()
 	/* copy lTmp because saveDialog would overwrites
 	inputBox static buffer in basicinput mode */
 
-	strcpy(lThePassword, lTmp);
+	strcpy(lString, lTmp);
 
 	lTheSaveFileName = tinyfd_saveFileDialog(
 		"let us save this password",
@@ -225,7 +215,7 @@ int main()
 			1);
 		return 1 ;
 	}
-	fputs(lThePassword, lIn);
+	fputs(lString, lIn);
 	fclose(lIn);
 
 	lTheOpenFileName = tinyfd_openFileDialog(
@@ -310,16 +300,26 @@ int main()
 
 
 OSX :
-$ gcc -o hello.app hello.c tinyfiledialogs.c
+$ clang -o hello.app hello.c tinyfiledialogs.c
+( or gcc )
 
 UNIX :
 $ gcc -o hello hello.c tinyfiledialogs.c
-( or clang tcc cc CC )
+( or clang tcc owcc cc CC )
 
-MinGW (needs gcc >= v4.9 otherwise some headers are incomplete):
-> gcc -o hello.exe hello.c tinyfiledialogs.c -LC:/mingw/lib -lcomdlg32 -lole32
-(unfortunately some headers are missing with tcc)
+Windows :
+    MinGW needs gcc >= v4.9 otherwise some headers are incomplete
+    > gcc -o hello.exe hello.c tinyfiledialogs.c -LC:/mingw/lib -lcomdlg32 -lole32
 
-VisualStudio :
-    Create a console application project,
-    it links against Comdlg32.lib & Ole32.lib.
+    TinyCC needs >= v0.9.27 (+ tweaks - contact me) otherwise some headers are missing
+    > tcc -o hello.exe hello.c tinyfiledialogs.c
+        -isystem C:\tcc\winapi-full-for-0.9.27\include\winapi
+        -lcomdlg32 -lole32 -luser32 -lshell32
+
+	Borland C: > bcc32c -o hello.exe hello.c tinyfiledialogs.c
+
+	OpenWatcom v2: create a character-mode executable project.
+
+    VisualStudio :
+      Create a console application project,
+      it links against Comdlg32.lib & Ole32.lib.

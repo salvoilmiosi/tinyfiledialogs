@@ -1,22 +1,19 @@
 /*_________
- /         \ hello.c v3.2.4 [Nov 5, 2017] zlib licence
+ /         \ hello.c v3.4.3 [Dec 8, 2019] zlib licence
  |tiny file| Hello World file created [November 9, 2014]
- | dialogs | Copyright (c) 2014 - 2017 Guillaume Vareille http://ysengrin.com
+ | dialogs | Copyright (c) 2014 - 2018 Guillaume Vareille http://ysengrin.com
  \____  ___/ http://tinyfiledialogs.sourceforge.net
-      \|
-	         git://git.code.sf.net/p/tinyfiledialogs/code
-         ____________________________________________
+      \|     git clone http://git.code.sf.net/p/tinyfiledialogs/code tinyfd
+		 ____________________________________________
 		|                                            |
 		|   email: tinyfiledialogs at ysengrin.com   |
 		|____________________________________________|
-     _________________________________________________________________
-    |                                                                 |
-    | this file is for windows and unix (osx linux, bsd, solaris ...) |
-    |_________________________________________________________________|
-	  
-Please 1) Let me know If you are using it on exotic hardware / OS / compiler
-       2) If yo have a sourceforge account, leave a 3-word review on Sourceforge.
-          It helps the ranking on google.
+         _________________________________________________________________
+        |                                                                 |
+        | this file is for windows and unix (osx linux, bsd, solaris ...) |
+        |_________________________________________________________________|
+	 
+Please upvote my stackoverflow answer https://stackoverflow.com/a/47651444
 
 tiny file dialogs (cross-platform C C++)
 InputBox PasswordBox MessageBox ColorPicker
@@ -24,9 +21,9 @@ OpenFileDialog SaveFileDialog SelectFolderDialog
 Native dialog library for WINDOWS MAC OSX GTK+ QT CONSOLE & more
 SSH supported via automatic switch to console mode or X11 forwarding
 
-One C file (add it to your C or C++ project) with 8 functions:
+one C file + a header (add them to your C or C++ project) with 8 functions:
 - beep
-- notify popup
+- notify popup (tray)
 - message & question
 - input & password
 - save file
@@ -34,15 +31,16 @@ One C file (add it to your C or C++ project) with 8 functions:
 - select folder
 - color picker
 
-Complements OpenGL GLFW GLUT GLUI VTK SFML TGUI SDL Ogre Unity3d ION OpenCV
-CEGUI MathGL GLM CPW GLOW IMGUI MyGUI GLT NGL STB & GUI less programs
+complements OpenGL Vulkan GLFW GLUT GLUI VTK SFML TGUI
+SDL Ogre Unity3d ION OpenCV CEGUI MathGL GLM CPW GLOW
+Open3D IMGUI MyGUI GLT NGL STB & GUI less programs
 
 NO INIT
 NO MAIN LOOP
 NO LINKING
 NO INCLUDE
 
-The dialogs can be forced into console mode
+the dialogs can be forced into console mode
 
 Windows (XP to 10) ASCII MBCS UTF-8 UTF-16
 - native code & vbs create the graphic dialogs
@@ -55,15 +53,16 @@ Unix (command line calls) ASCII UTF-8
 - python (2 or 3) + tkinter + python-dbus (optional)
 - dialog (opens a console if needed)
 - basic console input
-The same executable can run across desktops & distributions
+the same executable can run across desktops & distributions
 
 C89 & C++98 compliant: tested with C & C++ compilers
-on VisualStudio MinGW Mac Linux Bsd Solaris Minix Raspbian
-using Gnome Kde Enlightenment Mate Cinnamon Unity Lxde Lxqt Xfce
-WindowMaker IceWm Cde Jds OpenBox Awesome Jwm Xdm
+VisualStudio MinGW-gcc GCC Clang TinyCC OpenWatcom-v2 BorlandC SunCC ZapCC
+on Windows Mac Linux Bsd Solaris Minix Raspbian
+using Gnome Kde Enlightenment Mate Cinnamon Budgie Unity Lxde Lxqt Xfce
+WindowMaker IceWm Cde Jds OpenBox Awesome Jwm Xdm Cwm
 
-bindings for LUA and C# dll, Haskell
-included in LWJGL(java), Rust, Allegrobasic
+Bindings for LUA and C# dll, Haskell, Fortran
+Included in LWJGL(java), Rust, Allegrobasic
 
 - License -
 
@@ -95,6 +94,7 @@ misrepresented as being the original software.
 #include <stdio.h>
 #include <string.h>
 #include "tinyfiledialogs.h"
+
 int main( int argc , char * argv[] )
 {
 	int lIntValue;
@@ -107,10 +107,11 @@ int main( int argc , char * argv[] )
 	unsigned char lRgbColor[3];
 	FILE * lIn;
 	char lBuffer[1024];
-	char lThePassword[1024];
+	char lString[1024];
 	char const * lFilterPatterns[2] = { "*.txt", "*.text" };
 
 	tinyfd_verbose = argc - 1;
+    tinyfd_silent = 1;
 
 #ifdef _WIN32
 	tinyfd_winUtf8 = 0; /* on windows, you decide if char holds 0(default): MBCS or 1: UTF-8 */
@@ -132,10 +133,11 @@ int main( int argc , char * argv[] )
 	{
 		strcat(lBuffer, "\nconsole mode: ");
 	}
-
 	strcat(lBuffer, tinyfd_response);
-	strcpy(lThePassword, "tinyfiledialogs");
-	tinyfd_messageBox(lThePassword, lBuffer, "ok", "info", 0);
+	strcat(lBuffer, "\n");
+	strcat(lBuffer, tinyfd_needs+78);
+	strcpy(lString, "hello");
+	tinyfd_messageBox(lString, lBuffer, "ok", "info", 0);
 
 	tinyfd_notifyPopup("the title", "the message\n\tfrom outer-space", "info");
 
@@ -146,7 +148,7 @@ int main( int argc , char * argv[] )
 			"graphic dialogs [yes] / console mode [no]?",
 			"yesno", "question", 1);
 		tinyfd_forceConsole = ! lIntValue ;
-		
+	
 		/*lIntValue = tinyfd_messageBox("Hello World",
 			"graphic dialogs [yes] / console mode [no]?",
 			"yesnocancel", "question", 1);
@@ -161,7 +163,7 @@ int main( int argc , char * argv[] )
 	/* copy lTmp because saveDialog would overwrites
 	inputBox static buffer in basicinput mode */
 
-	strcpy(lThePassword, lTmp);
+	strcpy(lString, lTmp);
 
 	lTheSaveFileName = tinyfd_saveFileDialog(
 		"let us save this password",
@@ -192,7 +194,7 @@ int main( int argc , char * argv[] )
 			1);
 		return 1 ;
 	}
-	fputs(lThePassword, lIn);
+	fputs(lString, lIn);
 	fclose(lIn);
 
 	lTheOpenFileName = tinyfd_openFileDialog(
@@ -281,17 +283,27 @@ int main( int argc , char * argv[] )
 
 /*
 OSX :
-$ gcc -o hello.app hello.c tinyfiledialogs.c
+$ clang -o hello.app hello.c tinyfiledialogs.c
+( or gcc )
 
 UNIX :
 $ gcc -o hello hello.c tinyfiledialogs.c
-( or clang tcc cc CC )
+( or clang tcc owcc cc CC  )
 
-MinGW (needs gcc >= v4.9 otherwise some headers are incomplete):
-> gcc -o hello.exe hello.c tinyfiledialogs.c -LC:/mingw/lib -lcomdlg32 -lole32
-(unfortunately some headers are missing with tcc)
+Windows :
+	MinGW needs gcc >= v4.9 otherwise some headers are incomplete:
+	> gcc -o hello.exe hello.c tinyfiledialogs.c -LC:/mingw/lib -lcomdlg32 -lole32
 
-VisualStudio :
-	Create a console application project,
-	it links against Comdlg32.lib & Ole32.lib.
+	TinyCC needs >= v0.9.27 (+ tweaks - contact me) otherwise some headers are missing
+	> tcc -o hello.exe hello.c tinyfiledialogs.c
+	    -isystem C:\tcc\winapi-full-for-0.9.27\include\winapi
+	    -lcomdlg32 -lole32 -luser32 -lshell32
+
+	Borland C: > bcc32c -o hello.exe hello.c tinyfiledialogs.c
+
+	OpenWatcom v2: create a character-mode executable project.
+
+	VisualStudio :
+	  Create a console application project,
+	  it links against Comdlg32.lib & Ole32.lib.
 */

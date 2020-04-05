@@ -1,24 +1,19 @@
 /*_________
- /         \ tinyfiledialogs.h v3.2.4 [Nov 5, 2017] zlib licence
+ /         \ tinyfiledialogs.h v3.4.3 [Dec 8, 2019] zlib licence
  |tiny file| Unique header file created [November 9, 2014]
- | dialogs | Copyright (c) 2014 - 2017 Guillaume Vareille http://ysengrin.com
+ | dialogs | Copyright (c) 2014 - 2018 Guillaume Vareille http://ysengrin.com
  \____  ___/ http://tinyfiledialogs.sourceforge.net
-      \|
-             git://git.code.sf.net/p/tinyfiledialogs/code
-         ____________________________________________
+      \|     git clone http://git.code.sf.net/p/tinyfiledialogs/code tinyfd
+		 ____________________________________________
 		|                                            |
 		|   email: tinyfiledialogs at ysengrin.com   |
 		|____________________________________________|
-     ________________________________________________________________________
-    |                                                                        |
-    | the windows only wchar_t UTF-16 prototypes are at the end of this file |
-    |________________________________________________________________________|
+         ________________________________________________________________________
+        |                                                                        |
+        | the windows only wchar_t UTF-16 prototypes are at the end of this file |
+        |________________________________________________________________________|
 
-A big thank you to Don Heyse http://ldglite.sf.net for bug corrections & thorough testing!
-
-Please 1) Let me know If you are using it on exotic hardware / OS / compiler
-       2) If yo have a sourceforge account, leave a 3-word review on Sourceforge.
-          It helps the ranking on google.
+Please upvote my stackoverflow answer https://stackoverflow.com/a/47651444
 
 tiny file dialogs (cross-platform C C++)
 InputBox PasswordBox MessageBox ColorPicker
@@ -26,9 +21,9 @@ OpenFileDialog SaveFileDialog SelectFolderDialog
 Native dialog library for WINDOWS MAC OSX GTK+ QT CONSOLE & more
 SSH supported via automatic switch to console mode or X11 forwarding
 
-One C file (add it to your C or C++ project) with 8 functions:
+one C file + a header (add them to your C or C++ project) with 8 functions:
 - beep
-- notify popup
+- notify popup (tray)
 - message & question
 - input & password
 - save file
@@ -36,8 +31,9 @@ One C file (add it to your C or C++ project) with 8 functions:
 - select folder
 - color picker
 
-Complements OpenGL GLFW GLUT GLUI VTK SFML TGUI SDL Ogre Unity3d ION OpenCV
-CEGUI MathGL GLM CPW GLOW IMGUI MyGUI GLT NGL STB & GUI less programs
+Complements OpenGL Vulkan GLFW GLUT GLUI VTK SFML TGUI
+SDL Ogre Unity3d ION OpenCV CEGUI MathGL GLM CPW GLOW
+Open3D IMGUI MyGUI GLT NGL STB & GUI less programs
 
 NO INIT
 NO MAIN LOOP
@@ -60,12 +56,14 @@ Unix (command line calls) ASCII UTF-8
 The same executable can run across desktops & distributions
 
 C89 & C++98 compliant: tested with C & C++ compilers
-on VisualStudio MinGW Mac Linux Bsd Solaris Minix Raspbian
-using Gnome Kde Enlightenment Mate Cinnamon Unity Lxde Lxqt Xfce
-WindowMaker IceWm Cde Jds OpenBox Awesome Jwm Xdm
+VisualStudio MinGW-gcc GCC Clang TinyCC OpenWatcom-v2 BorlandC SunCC ZapCC
+on Windows Mac Linux Bsd Solaris Minix Raspbian
+using Gnome Kde Enlightenment Mate Cinnamon Budgie Unity Lxde Lxqt Xfce
+WindowMaker IceWm Cde Jds OpenBox Awesome Jwm Xdm Cwm
 
-bindings for LUA and C# dll, Haskell
-included in LWJGL(java), Rust, Allegrobasic
+
+Bindings for LUA and C# dll, Haskell, Fortran
+Included in LWJGL(java), Rust, Allegrobasic
 
 - License -
 
@@ -104,9 +102,11 @@ and the corresponding closing bracket near the end of this file:
 extern "C" {
 #endif
 
-extern char tinyfd_version[8]; /* contains tinyfd current version number */
-
+extern char const tinyfd_version[8]; /* contains tinyfd current version number */
+extern char const tinyfd_needs[]; /* info about requirements */
 extern int tinyfd_verbose; /* 0 (default) or 1 : on unix, prints the command line calls */
+extern int tinyfd_silent; /* 1 (default) or 0 : on unix,
+                          hide errors and warnings from called dialog*/
 
 #ifdef _WIN32
 /* for UTF-16 use the functions at the end of this files */
@@ -135,9 +135,9 @@ for graphic mode:
   python2-tkinter python3-tkinter python-dbus perl-dbus
   gxmessage gmessage xmessage xdialog gdialog
 for console mode:
-  dialog whiptail basicinput */
+  dialog whiptail basicinput no_solution */
 
-void tinyfd_beep();
+void tinyfd_beep(void);
 
 int tinyfd_notifyPopup(
 	char const * const aTitle, /* NULL or "" */
@@ -171,7 +171,7 @@ char const * tinyfd_openFileDialog(
 	char const * const aTitle , /* NULL or "" */
 	char const * const aDefaultPathAndFile , /* NULL or "" */
 	int const aNumOfFilterPatterns , /* 0 */
-	char const * const * const aFilterPatterns , /* NULL {"*.jpg","*.png"} */
+	char const * const * const aFilterPatterns , /* NULL | {"*.jpg","*.png"} */
 	char const * const aSingleFilterDescription , /* NULL | "image files" */
 	int const aAllowMultipleSelects ) ; /* 0 or 1 */
 		/* in case of multiple files, the separator is | */
@@ -218,7 +218,7 @@ wchar_t const * tinyfd_inputBoxW(
 	wchar_t const * const aTitle, /* NULL or L"" */
 	wchar_t const * const aMessage, /* NULL or L"" may NOT contain \n nor \t */
 	wchar_t const * const aDefaultInput ); /* L"" , if NULL it's a passwordBox */
-	
+
 /* windows only - utf-16 version */
 wchar_t const * tinyfd_saveFileDialogW(
 	wchar_t const * const aTitle, /* NULL or L"" */
@@ -294,9 +294,10 @@ char const * tinyfd_arrayDialog(
 - On windows link against Comdlg32.lib and Ole32.lib
   This linking is not compulsary for console mode (see above).
 - On unix: it tries command line calls, so no such need.
-- On unix you need applescript, kdialog, zenity, matedialog, qarma,
-  python (2 or 3)/tkinter/python-dbus (optional),
-  Xdialog or dialog (opens terminal if running without console).
+- On unix you need one of the following:
+  applescript, kdialog, zenity, matedialog, shellementary, qarma,
+  python (2 or 3)/tkinter/python-dbus (optional), Xdialog
+  or dialog (opens terminal if running without console) or xterm.
 - One of those is already included on most (if not all) desktops.
 - In the absence of those it will use gdialog, gxmessage or whiptail
   with a textinputbox.
@@ -320,7 +321,5 @@ char const * tinyfd_arrayDialog(
   It can be found at the bottom of the following page:
   http://andrear.altervista.org/home/cdialog.php
 - If dialog is missing, it will switch to basic console input.
-- You can query the type of dialog that will be use.
-- MinGW needs gcc >= v4.9 otherwise some headers are incomplete.
-- The Hello World (and a bit more) is on the sourceforge site:
+- You can query the type of dialog that will be use (pass "tinyfd_query" as aTitle)
 */
