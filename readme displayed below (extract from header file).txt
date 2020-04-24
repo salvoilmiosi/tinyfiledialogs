@@ -1,12 +1,12 @@
-tiny file dialogs ( cross-platform C C++ ) v3.4.3 [Dec 8, 2019] zlib licence
+tiny file dialogs ( cross-platform C C++ ) v3.6.1 [Apr 24, 2020] zlib licence
  _________
 /         \   Beep Popup InputBox PasswordBox MessageBox ColorPicker
 |tiny file|   OpenFileDialog SaveFileDialog SelectFolderDialog
-| dialogs |   ASCII UTF-8 (and also MBCS UTF-16 for windows)
+| dialogs |   ASCII UTF-8 (and also MBCS & UTF-16 for windows)
 \____  ___/   Native dialog library for WINDOWS MAC OSX GTK+ QT CONSOLE
      \|       SSH support via automatic switch to console mode or X11 forwarding
 
-C89 & C++98 compliant: tested with C & C++ compilers
+C89/C18 & C++98/C++20 compliant: tested with C & C++ compilers
 VisualStudio MinGW GCC Clang TinyCC OpenWatcom-v2 BorlandC SunCC ZapCC
 on Windows Mac Linux Bsd Solaris Minix Raspbian
 using Gnome Kde Mate Enlightenment Cinnamon Budgie Unity Lxde Lxqt Xfce
@@ -16,14 +16,18 @@ Bindings for LUA and C# dll, Haskell, Fortran. Included in LWJGL(java), Rust, Al
 
                    http://tinyfiledialogs.sourceforge.net
          git clone http://git.code.sf.net/p/tinyfiledialogs/code tinyfd
-  _________________________________________________________________________
- |                                                                         |
- | CONTACT me directly via the email address at the top of the header file |
- |_________________________________________________________________________|
-     ___________________________________________________________________
-    |                                                                   |
-    | the windows only wchar_t UTF-16 prototypes are in the header file |
-    |___________________________________________________________________|
+  __________________________________________________________________
+ |                                                                  |
+ | my email address at the top of the header file tinyfiledialogs.h |
+ |__________________________________________________________________|
+  _________________________________________________________________________________
+ |                                                                                 |
+ | the windows only wchar_t UTF-16 prototypes are at the bottom of the header file |
+ |_________________________________________________________________________________|
+  ________________________________________________________________________________
+ |                                                                                |
+ | on windows: char is UTF-8 by default, if you want MBCS set tinyfd_winUtf8 to 0 |
+ |________________________________________________________________________________|
 
 void tinyfd_beep() ;
 
@@ -92,7 +96,7 @@ char const * tinyfd_colorChooser (
 - If no filter description is provided,
   the list of patterns will become the description.
 - char const * filterPatterns[3] = { "*.obj" , "*.stl" , "*.dxf" } ;
-- On windows char defaults to MBCS, set tinyfd_winUtf8=1 to use UTF-8
+- On windows char defaults to UTF-8, set tinyfd_winUtf8=0 to use MBCS
 - On windows link against Comdlg32.lib and Ole32.lib
   (on windows the no linking claim is a lie)
   This linking is not compulsary for console mode (see header file).
